@@ -36,7 +36,7 @@ namespace SDFC_WSDL_TVEyes
             using (force.SoapClient sc = new force.SoapClient()) {
                 if (sessionId == null && serverURL == null)
                 {
-                    lr = sc.login(null, "mstoyka1@tveyes.com.redev", "Salesforce123" + "iMgAcQXAdaZESNhBQo3paJLAw");
+                    lr = sc.login(null, "[username]", "[password]" + "[security token]");
                     // TODO: check for expired
 
                     // store the id
