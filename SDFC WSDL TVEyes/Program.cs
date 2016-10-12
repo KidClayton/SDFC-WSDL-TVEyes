@@ -11,8 +11,6 @@ namespace SDFC_WSDL_TVEyes
 {
     class Program
     {
-        static private string sessionId;
-        static private string serverURL;
         static void Main(string[] args)
         {
             try
@@ -30,33 +28,19 @@ namespace SDFC_WSDL_TVEyes
         static bool ProcessCases()
         {
             bool result = true;
-
-            // make the contection
-            force.LoginResult lr = new force.LoginResult();
-            using (force.SoapClient sc = new force.SoapClient()) {
-                if (sessionId == null && serverURL == null)
-                {
-                    lr = sc.login(null, "mstoyka1@tveyes.com.redev", "Salesforce123" + "iMgAcQXAdaZESNhBQo3paJLAw");
-                    // TODO: check for expired
-
-                    // store the id
-                    sessionId = lr.sessionId.ToString().Trim();
-                    serverURL = lr.serverUrl.ToString().Trim();
-                }
-            }
-
-            
-            
-            force.SessionHeader sheader = new force.SessionHeader();
-            sheader.sessionId = sessionId;
-
-            // get cases
-            force.QueryResult qrCases = new force.QueryResult();
-            using (force.SoapClient sc = new force.SoapClient())
+            string strUseRT = "";
+            // get the correct record type and build query
+            force.QueryResult qrCaseRT = forceTools.RunQuery("SELECT id FROM recordtype where name = 'Provisioning'");
+            if(qrCaseRT.records.Length > 0)
             {
-                sc.ChannelFactory.Endpoint.Address = new System.ServiceModel.EndpointAddress(serverURL);
-                sc.query(sheader, null, null, null, "SELECT id FROM case WHERE recordtypeid = '012R00000009UE9IAM'", out qrCases);
+                strUseRT = qrCaseRT.records[0].Id;
             }
+            else
+            {
+                throw new Exception("Could not find the specified Record Type");
+            }
+            // get cases
+            force.QueryResult qrCases = forceTools.RunQuery("SELECT id FROM case WHERE recordtypeid = '" + strUseRT + "'");
             // process
             force.sObject[] cases = qrCases.records;
             // update cases
